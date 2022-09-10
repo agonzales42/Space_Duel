@@ -21,6 +21,8 @@
 #define CLOCKPIN 15
 #define REDTRIGGER 13
 #define GREENTRIGGER 12
+#define REDTURN 3
+#define GREENTURN 2
 #define PIXELS 64    // Change depending on the length of the LED Strip
 #define PULSE_LENGTH 8 // The actual length of the salvo in pixels
 #define PULSE_DURATION 5000 // The time between pixel changes in microseconds. Lower for faster shots, higher for slower shots.
@@ -43,6 +45,8 @@ void gameOver(uint8_t w);
 void setup() {
   pinMode(DATAPIN, OUTPUT);
   pinMode(CLOCKPIN, OUTPUT);
+  pinMode(REDTURN, OUTPUT);
+  pinMode(GREENTURN, OUTPUT);
   pinMode(REDTRIGGER, INPUT);
   pinMode(GREENTRIGGER, INPUT);
   strip.begin();
@@ -54,6 +58,13 @@ float_t greenHealth = STARTING_HEALTH, redHealth = STARTING_HEALTH;
 float_t damage;
 
 void loop() {
+  if (turn == 'r') {
+    digitalWrite(REDTURN, HIGH);
+    digitalWrite(GREENTURN, LOW);
+  } else {
+    digitalWrite(REDTURN, LOW);
+    digitalWrite(GREENTURN, HIGH);
+  }
   if (newGame) {
     Serial.println("Let's play Space Duel!");
     if (turn == 'r') {
