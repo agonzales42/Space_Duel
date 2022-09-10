@@ -21,9 +21,9 @@
 #define CLOCKPIN 15
 #define REDTRIGGER 13
 #define GREENTRIGGER 12
-#define PIXELS 63    // Change depending on the length of the LED Strip
-#define PULSE_LENGTH 10 // The actual length of the salvo in pixels
-#define PULSE_DURATION 10000 // The time between pixel changes in microseconds. Lower for faster shots, higher for slower shots.
+#define PIXELS 64    // Change depending on the length of the LED Strip
+#define PULSE_LENGTH 8 // The actual length of the salvo in pixels
+#define PULSE_DURATION 5000 // The time between pixel changes in microseconds. Lower for faster shots, higher for slower shots.
 
 #define STARTING_HEALTH 300 // Increase for longer games
 #define TRACKING_SPEED 75 // between 0 for always misses and 100 for always hits. 75 = 75% chance of hitting at all.
@@ -63,6 +63,7 @@ void loop() {
     }
   }
   newGame = false;
+
   if (digitalRead(REDTRIGGER) == HIGH && turn == 'r') {
 
     damage = calculateDamage();
@@ -132,9 +133,9 @@ void printAttack(String attacker, String defender, float_t damage, boolean didHi
     Serial.print(defender);
   }
   Serial.print("!\nRed's health: ");
-  Serial.print(greenHealth, 2);
-  Serial.print("  | Green's Health: ");
   Serial.print(redHealth, 2);
+  Serial.print("  | Green's Health: ");
+  Serial.print(greenHealth, 2);
   Serial.print("\n\n");
 }
 
@@ -167,7 +168,7 @@ void redFires(uint32_t c, uint8_t p, int t, float_t damage, boolean didHit) {
   }
   for (int i = 0; i <= PIXELS; i++) {
     for(int j = i; j <= i+p; j++) {
-      strip.setPixelColorRGB(j, (j*(c-1/c) + 1/c));
+      strip.setPixelColorRGB(j, (j*(c-1/(float_t)c) + 1/c));
     }
     strip.show();
     delayMicroseconds(t);
@@ -177,7 +178,7 @@ void redFires(uint32_t c, uint8_t p, int t, float_t damage, boolean didHit) {
   if (didHit) {
     uint8_t explosions = calculateExplosions(damage);
     for(int k = 0; k < explosions; k++) {
-      for (int j = PIXELS;  j > PIXELS-6 && j >= PIXELS-explosions; j--) {
+      for (int j = PIXELS;  j >= PIXELS-6 && j >= PIXELS-explosions; j--) {
         strip.setPixelColorRGB(j, 0xff0000);
       }
       strip.show();
@@ -211,7 +212,7 @@ void greenFires(uint32_t c, uint8_t p, int t, float_t damage, boolean didHit) {
   }
   for (int i = PIXELS-p; i+p >= 0; i--) {
     for(int j = i; j <= i+p ; j++) {
-      strip.setPixelColorRGB(j, (-1*j*(c-1/c) + c));
+      strip.setPixelColorRGB(j, (-1*j*(c-1/(float_t)c) + c));
     }
     strip.show();
     delayMicroseconds(t);
