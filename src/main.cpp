@@ -23,16 +23,21 @@
 #define GREENTRIGGER 12
 #define REDTURN 3
 #define GREENTURN 2
+#define POWERBTN 1
 #define PIXELS 64    // Change depending on the length of the LED Strip
 #define PULSE_LENGTH 8 // The actual length of the salvo in pixels
 #define PULSE_DURATION 5000 // The time between pixel changes in microseconds. Lower for faster shots, higher for slower shots.
 
-#define STARTING_HEALTH 300 // Increase for longer games
+#define STARTING_HEALTH 120 // Increase for longer games
 #define TRACKING_SPEED 75 // between 0 for always misses and 100 for always hits. 75 = 75% chance of hitting at all.
 
 uint8_t turn = 'r';
 
 LPD8806 strip = LPD8806(PIXELS, DATAPIN, CLOCKPIN);
+
+void startGame();
+void stopGame();
+void playGame();
 
 void printAttack(String attacker, String defender, float_t damage, boolean didHit);
 float_t calculateDamage();
@@ -49,15 +54,41 @@ void setup() {
   pinMode(GREENTURN, OUTPUT);
   pinMode(REDTRIGGER, INPUT);
   pinMode(GREENTRIGGER, INPUT);
+  pinMode(POWERBTN, INPUT);
   strip.begin();
 }
 
-boolean newGame = true;
-boolean didHit;
+boolean newGame = true, didHit, on = true;
 float_t greenHealth = STARTING_HEALTH, redHealth = STARTING_HEALTH;
 float_t damage;
 
 void loop() {
+  /*
+  if ( digitalRead(POWERBTN) == HIGH ) {
+    Serial.println("heyo");
+    for (int i = 0; i < 3; i++) {
+      digitalWrite(REDTURN, HIGH);
+      digitalWrite(GREENTURN, HIGH);
+      delay(500);
+      digitalWrite(REDTURN, LOW);
+      digitalWrite(GREENTURN, LOW);
+      delay(500);
+    }
+    if (on) {
+      on = false;
+      // stopGame();
+    } else {
+      on = true;
+      startGame();
+    }
+  }
+  */
+  if (on) {
+    playGame();
+  }
+}
+
+void playGame() {
   if (turn == 'r') {
     digitalWrite(REDTURN, HIGH);
     digitalWrite(GREENTURN, LOW);
@@ -110,6 +141,9 @@ void loop() {
     turn = 'r';
   }
 }
+
+
+
 
 void printAttack(String attacker, String defender, float_t damage, boolean didHit) {
   if (didHit) {
